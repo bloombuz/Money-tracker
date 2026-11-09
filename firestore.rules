@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User settings
+    match /users/{userId}/settings/{settingId} {
+      allow read, delete: if isOwner(userId) && isValidId(settingId);
+      allow create, update: if isOwner(userId) && isValidId(settingId)
+        && request.resource.data.userId == userId;
+    }
+
+    // Transactions (money in, money out, debt payments)
+    match /users/{userId}/transactions/{transactionId} {
+      allow read, delete: if isOwner(userId) && isValidId(transactionId);
+      allow create, update: if isOwner(userId) && isValidId(transactionId)
+        && request.resource.data.userId == userId
+        && request.resource.data.amount is number
+        && request.resource.data.type in ['income', 'expense', 'debt_payment'];
+    }
+
+    // Debts (loans, credit cards)
+    match /users/{userId}/debts/{debtId} {
+      allow read, delete: if isOwner(userId) && isValidId(debtId);
+      allow create, update: if isOwner(userId) && isValidId(debtId)
+        && request.resource.data.userId == userId
+        && request.resource.data.balance is number;
+    }
+
+    // Goals (phone, laptop, car, move out, etc.)
+    match /users/{userId}/goals/{goalId} {
+      allow read, delete: if isOwner(userId) && isValidId(goalId);
+      allow create, update: if isOwner(userId) && isValidId(goalId)
+        && request.resource.data.userId == userId
+        && request.resource.data.targetAmount is number;
+    }
+
+    // Bangalore move-out calculator
+    match /users/{userId}/move_out_calc/{calcId} {
+      allow read, delete: if isOwner(userId) && isValidId(calcId);
+      allow create, update: if isOwner(userId) && isValidId(calcId)
+        && request.resource.data.userId == userId;
+    }
+  }
+}

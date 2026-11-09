@@ -1,0 +1,6 @@
+{
+  "name": "Money Plan",
+  "description": "Personal finance and debt elimination app designed for iPhone, tracking loans, spending, Bangalore move-out budgeting, and income planning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,126 @@
+{
+  "entities": {
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User profile finance planning settings and preferences",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "openingDebtConfirmed": { "type": "boolean" },
+        "openingDebtAmount": { "type": "number" },
+        "incomeMode": { "type": "string", "enum": ["manual", "average"] },
+        "manualTakeHomeIncome": { "type": "number" },
+        "investmentTargetPercent": { "type": "number" },
+        "discretionaryBudget": { "type": "number" },
+        "emergencyFundMonthly": { "type": "number" },
+        "extraDebtRepaymentMonthly": { "type": "number" },
+        "essentialsLivingCosts": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Money in or money out transaction record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "enum": ["income", "expense", "debt_payment"] },
+        "amount": { "type": "number" },
+        "source": { "type": "string", "maxLength": 120 },
+        "merchant": { "type": "string", "maxLength": 120 },
+        "category": { "type": "string", "maxLength": 60 },
+        "paymentMethod": { "type": "string", "enum": ["cash", "upi", "card", "netbanking", "other"] },
+        "debtId": { "type": "string", "maxLength": 128 },
+        "principalAmount": { "type": "number" },
+        "interestAmount": { "type": "number" },
+        "transactionDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "addedAt": { "type": "string" },
+        "note": { "type": "string", "maxLength": 300 }
+      },
+      "required": ["userId", "type", "amount", "transactionDate", "addedAt"]
+    },
+    "Debt": {
+      "title": "Debt",
+      "description": "Loan or credit card debt item",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "enum": ["loan", "credit_card"] },
+        "name": { "type": "string", "maxLength": 120 },
+        "assignedFromOpening": { "type": "number" },
+        "isNewBorrowing": { "type": "boolean" },
+        "balance": { "type": "number" },
+        "interestRate": { "type": "number" },
+        "monthlyEMI": { "type": "number" },
+        "dueDate": { "type": "string", "maxLength": 40 },
+        "nextDueDate": { "type": "string", "maxLength": 40 },
+        "totalStatementDue": { "type": "number" },
+        "minimumDue": { "type": "number" },
+        "statementMissing": { "type": "boolean" }
+      },
+      "required": ["userId", "type", "name", "balance"]
+    },
+    "Goal": {
+      "title": "Goal",
+      "description": "Financial savings goal like new phone, laptop, car, or move out",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "key": { "type": "string", "maxLength": 40 },
+        "title": { "type": "string", "maxLength": 120 },
+        "targetAmount": { "type": "number" },
+        "currentSaved": { "type": "number" },
+        "targetDate": { "type": "string", "maxLength": 40 },
+        "isActiveInPlan": { "type": "boolean" },
+        "carPurchaseType": { "type": "string", "enum": ["outright", "emi"] },
+        "downPayment": { "type": "number" },
+        "monthlyEmi": { "type": "number" },
+        "runningCosts": { "type": "number" }
+      },
+      "required": ["userId", "key", "title", "targetAmount", "isActiveInPlan"]
+    },
+    "MoveOutCalc": {
+      "title": "MoveOutCalc",
+      "description": "Bangalore move-out calculator inputs and scenarios",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "monthlyRent": { "type": "number" },
+        "maintenance": { "type": "number" },
+        "utilities": { "type": "number" },
+        "refundableDeposit": { "type": "number" },
+        "brokerage": { "type": "number" },
+        "movingCosts": { "type": "number" },
+        "setupCosts": { "type": "number" },
+        "overlapRent": { "type": "number" },
+        "currentRent": { "type": "number" },
+        "currentMaintenance": { "type": "number" },
+        "currentUtilities": { "type": "number" }
+      },
+      "required": ["userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/settings/{settingId}": {
+      "schema": "UserSettings",
+      "description": "User planning settings"
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Income, expenses, and debt payments"
+    },
+    "/users/{userId}/debts/{debtId}": {
+      "schema": "Debt",
+      "description": "User loans and credit cards"
+    },
+    "/users/{userId}/goals/{goalId}": {
+      "schema": "Goal",
+      "description": "Savings and purchase goals"
+    },
+    "/users/{userId}/move_out_calc/{calcId}": {
+      "schema": "MoveOutCalc",
+      "description": "Bangalore move out calculator data"
+    }
+  }
+}
